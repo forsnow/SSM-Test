@@ -65,18 +65,16 @@ web路径：
                         <label for="empNameAdd_input" class="col-sm-2 control-label">deptName</label>
                         <div class="col-sm-10">
                             <!-- 部门提交部门id即可 -->
-                            <select class="form-control" name="dId">
+                            <select class="form-control" name="dId" id="dept_select">
                             </select>
                         </div>
                     </div>
-
-
 
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-primary" id="emp_save">保存</button>
             </div>
         </div>
     </div>
@@ -272,8 +270,7 @@ web路径：
     //点击新增按钮弹出模态框
     $("#empAddModal_btn").click(function () {
         //发送ajax请求 查出部门信息 显示在下拉列表中
-
-
+        getDept();
 
         //弹出模态框
         $("#empAddModal").modal({
@@ -283,15 +280,36 @@ web路径：
 
     //查出所有的部门信息并显示在下来列表中
     function getDept() {
+        $("#empAddModal select").empty();
         $.ajax({
             url: "${APP_PATH}/depts",
             type: "get",
             success:function (result) {
-                console.log(result);
+                //console.log(result);
+                //"code":100,"msg":"处理成功","map":{"depts":[{"deptId":1,"deptName":"开发部"},{"deptId":2,"deptName":"测试部"}]}}
+                //$("#empAddModal select").append()
+
+                //遍历部门信息
+                $.each(result.map.depts,function () {
+                    var optionEle = $("<option></option>").append(this.deptName).attr("value",this.deptId)
+                    optionEle.appendTo("#empAddModal select");
+                })
             }
         })
 
     }
+
+    $("#emp_save").click(function () {
+        //1.将表单内容提交给服务器进行保存
+
+        alert($("#empAddModal form").serialize());
+        <%--$.ajax({--%>
+        <%--   /* url : "${APP_PATH}/emp",--%>
+        <%--    type : "post",--%>
+        <%--    data: */--%>
+        <%--})--%>
+
+    })
 
 
 </script>

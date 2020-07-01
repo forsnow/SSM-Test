@@ -7,9 +7,7 @@ import com.xuesong.bean.Msg;
 import com.xuesong.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,8 +22,22 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
+    /**
+     * 员工保存
+     * 	 * 1、支持JSR303校验
+     * 	 * 2、导入Hibernate-Validator
+     *
+     */
+    @RequestMapping(value = "emps" , method = RequestMethod.POST)
+    @ResponseBody
+    public Msg saveEmp(Employee employee){
+        employeeService.saveEmp(employee);
 
-    @RequestMapping("emps")
+        return null;
+    }
+
+
+    @RequestMapping(value = "emps")
     @ResponseBody/*这个注解自动将结果转换为json,需要导入jackson包*/
     public Msg getEmpsWithJson(@RequestParam(value = "pn", defaultValue = "1") Integer pn){
         // 这不是一个分页查询；
@@ -39,6 +51,12 @@ public class EmployeeController {
         PageInfo page = new PageInfo(emps, 5);
         return Msg.success().add("pageInfo",page);
     }
+
+
+
+
+
+
 
 
 
