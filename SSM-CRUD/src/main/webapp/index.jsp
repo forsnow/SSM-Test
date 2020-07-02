@@ -37,6 +37,7 @@ web路径：
                 <form class="form-horizontal">
                     <div class="form-group">
                         <label for="empNameAdd_input" class="col-sm-2 control-label">empName</label>
+                        <span id="helpBlock1" class="help-block">..</span>
                         <div class="col-sm-10">
                             <input type="text" name="empName" class="form-control" id="empNameAdd_input" placeholder="name">
                         </div>
@@ -44,6 +45,7 @@ web路径：
 
                     <div class="form-group">
                         <label for="emailAdd_input" class="col-sm-2 control-label">email</label>
+                        <span id="helpBlock2" class="help-block">..</span>
                         <div class="col-sm-10">
                             <input type="text" name="email" class="form-control" id="emailAdd_input" placeholder="test@xuesong.com">
                         </div>
@@ -131,6 +133,8 @@ web路径：
 
 
 <script type="text/javascript">
+    var totalRecord;
+
     //页面完成后直接发送一个ajax请求，要到分页数据
     $(function() {
         to_page(1);
@@ -199,6 +203,8 @@ web路径：
         $("#page_info_area").append("当前"+result.map.pageInfo.pageNum+"页,总"
          +result.map.pageInfo.pages+"页,总"
          +result.map.pageInfo.total+"页");
+
+        totalRecord = result.map.pageInfo.pages;
 
     }
 
@@ -299,15 +305,58 @@ web路径：
 
     }
 
-    $("#emp_save").click(function () {
-        //1.将表单内容提交给服务器进行保存
+    //校验表单数据
+    function validate_add_form(){
+        //1.拿到要校验的数据，使用正则表达式校验
+        var empName = $("#empNameAdd_input").val();
+        var regName = /(^[a-zA-Z0-9_-]{6,16}$)|(^[\u2E80-\u9FFF]{2,5})/;
+        if (!regName.test(empName)){
+            //alert("用户名可以是2-5位中文或者6-16位英文支持大小写和_")
+            $("#empNameAdd_input").parent().addClass("has-error");
+            $("#helpBlock1").text("用户名可以是2-5位中文或者6-16位英文支持大小写和_");
+            return false;
+        }else {
+            $("#empNameAdd_input").parent().addClass("has-success");
+            $("#helpBlock1").text("√");
+        }
 
-        alert($("#empAddModal form").serialize());
-        <%--$.ajax({--%>
-        <%--   /* url : "${APP_PATH}/emp",--%>
-        <%--    type : "post",--%>
-        <%--    data: */--%>
-        <%--})--%>
+
+        //2.校验邮箱
+        var email = $("#emailAdd_input").val();
+        var regEmail = /^[a-z\d]+(\.[a-z\d]+)*@([\da-z](-[\da-z])?)+(\.{1,2}[a-z]+)+$/;
+        if (!regEmail.test(email)){
+            //alert("请输入正确的邮箱格式")
+            $("emailAdd_input").parent().addClass("has-error");
+            $("#helpBlock2").text("请输入正确的邮箱格式QAQ");
+            return false;
+        }else {
+            $("emailAdd_input").parent().addClass("has-success");
+            $("#helpBlock1").text("√");
+        }
+
+        return true;
+
+    }
+
+    $("#emp_save").click(function () {
+        //点击保存先对提交给数据库的数据进行校验
+        if(!validate_add_form()){
+            return false;
+        }
+
+        //1.将表单内容提交给服务器进行保存
+        $.ajax({
+            url : "${APP_PATH}/emps",
+            type : "post",
+            data: $("#empAddModal form").serialize(),
+            success:function (result) {
+                //关闭模态框
+                $("#empAddModal").modal('hide');
+                //来到最后一页
+                to_page(totalRecord);
+
+            }
+        })
 
     })
 
